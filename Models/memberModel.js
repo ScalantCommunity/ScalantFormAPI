@@ -33,6 +33,11 @@ var userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isTeamMember: {
+    type: Boolean,
+    required: true,
+    default: false,
+  }
 });
 
 //Export the model

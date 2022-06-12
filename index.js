@@ -21,11 +21,11 @@ app.get('/api/images', async (req, res) => {
 app.post('/api/upload', async (req, res) => {
     try {
         const fileStr = req.body.data;
-        const { name, email, domain, linkedin, github, twitter } = req.body
+        const { name, email, domain, linkedin, github, twitter, instagram } = req.body
         const uploadResponse = await cloudinary.uploader.upload(fileStr, {
             upload_preset: 'dev_setups',
         });
-        const member = await User.create({ photo: uploadResponse.url, name, email, domain, linkedin, github, twitter })
+        const member = await User.create({ photo: uploadResponse.url, name, email, domain, linkedin, github, twitter, instagram })
         console.log(member)
         res.status(201).json(member)
 

@@ -24,6 +24,7 @@ let transporter = nodemailer.createTransport({
 })
 
 let generatedOtp;
+let verifiedEmail = '';
 
 app.get('/api/images', async (req, res) => {
     const members = await User.find({});
@@ -49,7 +50,7 @@ app.post('/api/getotp', async (req, res) => {
                 res.status(201).json({ info: 'Otp Send' })
             }
         })
-
+        verifiedEmail = email
     }
     catch (err) {
         console.log(err)
@@ -68,6 +69,11 @@ app.post('/api/upload', async (req, res) => {
         if (+otp !== generatedOtp) {
             return res.status(400).json({ err: 'OTP Not verified!' })
         }
+
+        if (verifiedEmail !== email) {
+            return res.status(400).json({ err: 'Cannot change the email after verification!' })
+        }
+
         const member = await User.create({ photo: uploadResponse.url, name, email, domain, linkedin, github, twitter, instagram })
 
         let mailOptions = {

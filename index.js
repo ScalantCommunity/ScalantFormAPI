@@ -39,7 +39,7 @@ app.get('/api/images', async (req, res) => {
 
 app.post('/api/getotp', async (req, res) => {
     try {
-        generatedOtp = Math.floor((Math.random() * 1000000) + 54);
+        generatedOtp = Math.floor(100000 + Math.random() * 900000);
         const { email } = req.body
         console.log(email, 'hello')
         let mailOptions = {

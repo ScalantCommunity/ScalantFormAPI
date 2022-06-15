@@ -1,5 +1,6 @@
 const { cloudinary } = require('./utils/cloudinary');
 const nodemailer = require('nodemailer')
+const handlebars = require("handlebars");
 require('dotenv').config();
 const connectDB = require('./utils/db.js');
 const User = require('./Models/memberModel.js');
@@ -25,6 +26,8 @@ let transporter = nodemailer.createTransport({
 
 let generatedOtp;
 let verifiedEmail = '';
+
+
 
 app.get('/api/images', async (req, res) => {
     const members = await User.find({});
@@ -76,12 +79,21 @@ app.post('/api/upload', async (req, res) => {
 
         const member = await User.create({ photo: uploadResponse.url, name, email, domain, linkedin, github, twitter, instagram })
 
+        const filePath = path.join(__dirname, './templete/email.html');
+        const source = fs.readFileSync(filePath, 'utf-8').toString();
+        const template = handlebars.compile(source);
+        const replacements = {
+            username: "Darth Vader"
+        };
+        const htmlToSend = template(replacements);
+
         let mailOptions = {
             from: process.env.USER_ID,
             to: email,
             subject: 'Welcome to the Community!',
-            html: 'Welcome to the Community',
+            html: htmlToSend
         }
+
 
         await transporter.sendMail(mailOptions, function (err, info) {
             if (err) {

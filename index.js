@@ -1,6 +1,8 @@
 const { cloudinary } = require('./utils/cloudinary');
 const nodemailer = require('nodemailer')
 const handlebars = require("handlebars");
+const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 const connectDB = require('./utils/db.js');
 const User = require('./Models/memberModel.js');
@@ -83,7 +85,7 @@ app.post('/api/upload', async (req, res) => {
         const source = fs.readFileSync(filePath, 'utf-8').toString();
         const template = handlebars.compile(source);
         const replacements = {
-            username: "Darth Vader"
+            username: name.toUpperCase()
         };
         const htmlToSend = template(replacements);
 

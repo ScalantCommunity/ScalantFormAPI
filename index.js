@@ -114,6 +114,22 @@ app.post('/api/upload', async (req, res) => {
     }
 });
 
+app.get('/api/user/:id', async (req, res) => {
+    const id = req.params.id;
+    const user = await User.findById(id);
+    res.status(200).json({ user })
+})
+
+app.put('/api/user/:id', async (req, res) => {
+    const id = req.params.id;
+    const user = await User.findById(id);
+    const { name, email, domain, linkedin, github, twitter, instagram, isTeamMember } = req.body
+    const updatedUser = await User.findByIdAndUpdate(id, { name, email, domain, linkedin, github, twitter, instagram, isTeamMember }, {
+        new: true
+    })
+    res.json({ updatedUser });
+})
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log('listening on 3001');

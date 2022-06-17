@@ -130,6 +130,12 @@ app.put('/api/user/:id', async (req, res) => {
     res.json({ updatedUser });
 })
 
+app.delete('/api/user/:id', async (req, res) => {
+    const id = req.params.id;
+    const deletedUser = await User.findByIdAndDelete(id)
+    res.json({ deletedUser })
+})
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log('listening on 3001');

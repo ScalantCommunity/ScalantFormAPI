@@ -6,6 +6,7 @@ const fs = require('fs');
 require('dotenv').config();
 const connectDB = require('./utils/db.js');
 const User = require('./Models/memberModel.js');
+const Review = require('./Models/reviewModel.js');
 const express = require('express');
 const app = express();
 var cors = require('cors');
@@ -122,12 +123,37 @@ app.get('/api/user/:id', async (req, res) => {
 
 app.put('/api/user/:id', async (req, res) => {
     const id = req.params.id;
-    const user = await User.findById(id);
     const { name, email, domain, linkedin, github, twitter, instagram, isTeamMember } = req.body
     const updatedUser = await User.findByIdAndUpdate(id, { name, email, domain, linkedin, github, twitter, instagram, isTeamMember }, {
         new: true
     })
     res.json({ updatedUser });
+})
+
+app.get('/api/review', async (req, res) => {
+    const users = await User.find({})
+    res.send(users)
+})
+
+app.get('/api/review/:id', async (req, res) => {
+    const id = req.params.id;
+    try {
+        const user = await User.findById(id);
+        res.send(user)
+    }
+    catch (error) {
+        console.log('error')
+        res.json({ error: 'user not found' })
+    }
+})
+
+
+
+app.post('/api/review', async (req, res) => {
+    const { name, email, past, future, issue, improvement } = req.body
+
+    const memberReview = await Review.create({ name, email, past, future, issue, improvement })
+    res.send(memberReview)
 })
 
 app.delete('/api/user/:id', async (req, res) => {

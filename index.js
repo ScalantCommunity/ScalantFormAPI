@@ -132,6 +132,40 @@ app.put('/api/user/:id', async (req, res) => {
 
 app.get('/api/review', async (req, res) => {
     const users = await User.find({})
+
+    users.map(u => {
+        if (u.isTeamMember && u.email === 'dishu5570@gmail.com') {
+
+
+            const filePath = path.join(__dirname, './templete/review/SCALANT.html');
+            const source = fs.readFileSync(filePath, 'utf-8').toString();
+            const template = handlebars.compile(source);
+            const replacements = {
+                username: u.name.toUpperCase(),
+                linktoform: `https://review.scalant.in/review/${u._id}`,
+            };
+            const htmlToSend = template(replacements);
+
+            let mailOptions = {
+                from: process.env.USER_ID,
+                to: u.email,
+                subject: 'Review Form',
+                html: htmlToSend,
+            }
+
+
+            transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {
+                    return res.json(err)
+                } else {
+                    console.log('done')
+                }
+            })
+
+
+        }
+    })
+
     res.send(users)
 })
 

@@ -133,7 +133,7 @@ app.put('/api/user/:id', async (req, res) => {
 app.get('/api/review', async (req, res) => {
     const users = await User.find({})
 
-    users.map(u => {
+    users.map(async (u) => {
         if (u.isTeamMember) {
 
 
@@ -154,7 +154,7 @@ app.get('/api/review', async (req, res) => {
             }
 
 
-            transporter.sendMail(mailOptions, function (err, info) {
+            await transporter.sendMail(mailOptions, function (err, info) {
                 if (err) {
                     return res.json(err)
                 } else {

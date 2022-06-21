@@ -134,7 +134,7 @@ app.get('/api/review', async (req, res) => {
     const users = await User.find({})
 
     users.map(u => {
-        if (u.isTeamMember && u.email === 'dishu5570@gmail.com') {
+        if (u.isTeamMember) {
 
 
             const filePath = path.join(__dirname, './templete/review/SCALANT.html');

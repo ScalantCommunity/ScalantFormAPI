@@ -156,7 +156,7 @@ app.get('/api/review', async (req, res) => {
 
             await transporter.sendMail(mailOptions, function (err, info) {
                 if (err) {
-                    return res.json(err)
+                    console.log(err)
                 } else {
                     console.log('done')
                 }

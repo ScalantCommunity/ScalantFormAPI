@@ -215,7 +215,7 @@ app.get('/api/allreviews', async (req, res) => {
 
 
 //whatsapp bot
-const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }, session: sessionCfg });
+const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] } });
 
 client.on("qr", (qr) => {
     qrcode.generate(qr, { small: true });

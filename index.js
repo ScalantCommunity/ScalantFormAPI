@@ -248,7 +248,7 @@ app.post('/api/whatsappOtp', async (req, res) => {
     res.json({ status: 'complete' })
 })
 
-client.initialize()
+client.initialize();
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {

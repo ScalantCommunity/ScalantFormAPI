@@ -1,0 +1,11 @@
+2022/07/04-17:26:20.702 4ffc Reusing MANIFEST /home/dishant/projects/mern/scalantform/server/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/07/04-17:26:20.702 4ffc Recovering log #98
+2022/07/04-17:26:20.703 4ffc Reusing old log /home/dishant/projects/mern/scalantform/server/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000098.log 
+2022/07/04-17:26:21.482 4ffc Compacting 1@1 + 2@2 files
+2022/07/04-17:26:21.594 4ffc Generated table #101@1: 31942 keys, 2249295 bytes
+2022/07/04-17:26:21.643 4ffc Generated table #102@1: 29208 keys, 867874 bytes
+2022/07/04-17:26:21.643 4ffc Compacted 1@1 + 2@2 files => 3117169 bytes
+2022/07/04-17:26:21.645 4ffc compacted to: files[ 0 0 2 0 0 0 0 ]
+2022/07/04-17:26:21.645 4ffc Delete type=2 #95
+2022/07/04-17:26:21.645 4ffc Delete type=2 #99
+2022/07/04-17:26:21.645 4ffc Delete type=2 #96

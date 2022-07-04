@@ -3,6 +3,8 @@ const nodemailer = require('nodemailer')
 const handlebars = require("handlebars");
 const path = require('path');
 const fs = require('fs');
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
 require('dotenv').config();
 const connectDB = require('./utils/db.js');
 const User = require('./Models/memberModel.js');
@@ -28,6 +30,7 @@ let transporter = nodemailer.createTransport({
 })
 
 let generatedOtp;
+let generatedWhatsappOtp;
 let verifiedEmail = '';
 
 
@@ -67,20 +70,23 @@ app.post('/api/getotp', async (req, res) => {
 app.post('/api/upload', async (req, res) => {
     try {
         const fileStr = req.body.data;
-        const { name, email, domain, linkedin, github, twitter, instagram, otp } = req.body
+        const { name, email, domain, linkedin, github, twitter, instagram, otp, whatsappOtp, phoneNumber } = req.body
         const uploadResponse = await cloudinary.uploader.upload(fileStr, {
             upload_preset: 'dev_setups',
         });
-
+        console.log(whatsappOtp, generatedWhatsappOtp)
         if (+otp !== generatedOtp) {
-            return res.status(400).json({ err: 'OTP Not verified!' })
+            return res.status(400).json({ err: 'Email OTP Not verified!' })
+        }
+        if (+whatsappOtp !== generatedWhatsappOtp) {
+            return res.status(400).json({ err: 'Whatsapp OTP Not verified!' })
         }
 
         if (verifiedEmail !== email) {
             return res.status(400).json({ err: 'Cannot change the email after verification!' })
         }
 
-        const member = await User.create({ photo: uploadResponse.url, name, email, domain, linkedin, github, twitter, instagram })
+        const member = await User.create({ photo: uploadResponse.url, name, email, phoneNumber, domain, linkedin, github, twitter, instagram })
 
         const filePath = path.join(__dirname, './templete/email.html');
         const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -196,7 +202,75 @@ app.delete('/api/user/:id', async (req, res) => {
     res.json({ deletedUser })
 })
 
+app.get('/api/allreviews', async (req, res) => {
+    const reviews = await Review.find({})
+    let reviewUsers = reviews.map(r => r.name);
+    const reviewSet = new Set([...reviewUsers]);
+    console.log(reviewSet);
+    reviewUsers = [...reviewSet]
+    res.send({ reviewUsers });
+
+})
+
+
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log('listening on 3001');
 });
+
+//whatsapp bot
+const client = new Client({
+    authStrategy: new LocalAuth()
+});
+
+client.on("qr", (qr) => {
+    qrcode.generate(qr, { small: true });
+});
+
+
+
+client.on("ready", () => {
+
+    console.log("Client is ready!");
+    client.sendMessage('919119346007@c.us', 'hello')
+});
+
+app.post('/api/whatsappOtp', async (req, res) => {
+    const { phoneNumber } = req.body
+    generatedWhatsappOtp = Math.floor(100000 + Math.random() * 900000);
+
+
+    const sanitized_number = phoneNumber.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
+    const final_number = `91${sanitized_number.substring(sanitized_number.length - 10)}`; // add 91 before the number here 91 is country code of India
+
+    const number_details = await client.getNumberId(final_number); // get mobile number details
+
+    if (number_details) {
+        const sendMessageData = await client.sendMessage(number_details._serialized, `Otp For Whatsapp Verification is ${generatedWhatsappOtp}`); // send message
+    } else {
+        console.log(final_number, "Mobile number is not registered");
+        return res.status(401).json({ err: 'Mobile number not registered', phoneNumber: final_number });
+    }
+
+    res.json({ status: 'complete' })
+})
+
+
+
+
+client.on("message", (message) => {
+    if (message.body.toLowerCase() === "!getscalantusers") {
+        const fetchUsers = async () => {
+            const { data } = await axios.get('https://scalantformapi-dishant5570-gmailcom-scalant.vercel.app/api/images');
+            const users = data.map(user => user.name);
+            message.reply(`Members are:\n ${users.map(u => `${u}\n`).toString().replaceAll(',', ' ')}`);
+        }
+        fetchUsers()
+    }
+});
+
+
+
+
+client.initialize()

@@ -13,6 +13,11 @@ var userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  phoneNumber: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   domain: {
     type: String,
     required: true,

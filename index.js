@@ -213,12 +213,6 @@ app.get('/api/allreviews', async (req, res) => {
 })
 
 
-
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-    console.log('listening on 3001');
-});
-
 //whatsapp bot
 const client = new Client();
 
@@ -254,21 +248,9 @@ app.post('/api/whatsappOtp', async (req, res) => {
     res.json({ status: 'complete' })
 })
 
-
-
-
-client.on("message", (message) => {
-    if (message.body.toLowerCase() === "!getscalantusers") {
-        const fetchUsers = async () => {
-            const { data } = await axios.get('https://scalantformapi-dishant5570-gmailcom-scalant.vercel.app/api/images');
-            const users = data.map(user => user.name);
-            message.reply(`Members are:\n ${users.map(u => `${u}\n`).toString().replaceAll(',', ' ')}`);
-        }
-        fetchUsers()
-    }
-});
-
-
-
-
 client.initialize()
+
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+    console.log('listening on 3001');
+});

@@ -220,9 +220,7 @@ app.listen(port, () => {
 });
 
 //whatsapp bot
-const client = new Client({
-    authStrategy: new LocalAuth()
-});
+const client = new Client();
 
 client.on("qr", (qr) => {
     qrcode.generate(qr, { small: true });

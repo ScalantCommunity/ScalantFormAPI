@@ -218,6 +218,7 @@ app.get('/api/allreviews', async (req, res) => {
 const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] } });
 
 client.on("qr", (qr) => {
+    console.log(qr)
     qrcode.generate(qr, { small: true });
 });
 

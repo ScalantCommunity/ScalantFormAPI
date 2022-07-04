@@ -12,20 +12,6 @@ const Review = require('./Models/reviewModel.js');
 const express = require('express');
 const app = express();
 var cors = require('cors');
-const puppeteer = require("puppeteer");
-
-async function main() {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ["--no-sandbox"]
-    });
-    const tab = await browser.newPage();
-    const text = await (await tab.goto("http://example.com/")).text();
-    console.log(text);
-    console.log("done");
-    browser.close();
-}
-main();
 
 
 
@@ -229,7 +215,7 @@ app.get('/api/allreviews', async (req, res) => {
 
 
 //whatsapp bot
-const client = new Client();
+const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }, session: sessionCfg });
 
 client.on("qr", (qr) => {
     qrcode.generate(qr, { small: true });

@@ -215,7 +215,7 @@ app.get('/api/allreviews', async (req, res) => {
 
 
 //whatsapp bot
-const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] } });
+const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }, authStrategy: new LocalAuth() });
 
 client.on("qr", (qr) => {
     console.log(qr)

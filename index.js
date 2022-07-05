@@ -71,7 +71,7 @@ app.post('/api/getotp', async (req, res) => {
 app.post('/api/upload', async (req, res) => {
     try {
         const fileStr = req.body.data;
-        const { name, email, domain, linkedin, github, twitter, instagram, otp, whatsappOtp, phoneNumber } = req.body
+        const { name, email, domain, linkedin, github, twitter, instagram, otp, phoneNumber } = req.body
         const uploadResponse = await cloudinary.uploader.upload(fileStr, {
             upload_preset: 'dev_setups',
         });
@@ -79,9 +79,7 @@ app.post('/api/upload', async (req, res) => {
         if (+otp !== generatedOtp) {
             return res.status(400).json({ err: 'Email OTP Not verified!' })
         }
-        if (+whatsappOtp !== generatedWhatsappOtp) {
-            return res.status(400).json({ err: 'Whatsapp OTP Not verified!' })
-        }
+
 
         if (verifiedEmail !== email) {
             return res.status(400).json({ err: 'Cannot change the email after verification!' })
@@ -214,43 +212,43 @@ app.get('/api/allreviews', async (req, res) => {
 })
 
 
-//whatsapp bot
-const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }, authStrategy: new LocalAuth() });
+// //whatsapp bot
+// const client = new Client({ puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }, authStrategy: new LocalAuth() });
 
-client.on("qr", (qr) => {
-    console.log(qr)
-    qrcode.generate(qr, { small: true });
-});
-
-
-
-client.on("ready", () => {
-
-    console.log("Client is ready!");
-    client.sendMessage('919119346007@c.us', 'hello')
-});
-
-app.post('/api/whatsappOtp', async (req, res) => {
-    const { phoneNumber } = req.body
-    generatedWhatsappOtp = Math.floor(100000 + Math.random() * 900000);
+// client.on("qr", (qr) => {
+//     console.log(qr)
+//     qrcode.generate(qr, { small: true });
+// });
 
 
-    const sanitized_number = phoneNumber.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
-    const final_number = `91${sanitized_number.substring(sanitized_number.length - 10)}`; // add 91 before the number here 91 is country code of India
 
-    const number_details = await client.getNumberId(final_number); // get mobile number details
+// client.on("ready", () => {
 
-    if (number_details) {
-        const sendMessageData = await client.sendMessage(number_details._serialized, `Otp For Whatsapp Verification is ${generatedWhatsappOtp}`); // send message
-    } else {
-        console.log(final_number, "Mobile number is not registered");
-        return res.status(401).json({ err: 'Mobile number not registered', phoneNumber: final_number });
-    }
+//     console.log("Client is ready!");
+//     client.sendMessage('919119346007@c.us', 'hello')
+// });
 
-    res.json({ status: 'complete' })
-})
+// app.post('/api/whatsappOtp', async (req, res) => {
+//     const { phoneNumber } = req.body
+//     generatedWhatsappOtp = Math.floor(100000 + Math.random() * 900000);
 
-client.initialize();
+
+//     const sanitized_number = phoneNumber.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
+//     const final_number = `91${sanitized_number.substring(sanitized_number.length - 10)}`; // add 91 before the number here 91 is country code of India
+
+//     const number_details = await client.getNumberId(final_number); // get mobile number details
+
+//     if (number_details) {
+//         const sendMessageData = await client.sendMessage(number_details._serialized, `Otp For Whatsapp Verification is ${generatedWhatsappOtp}`); // send message
+//     } else {
+//         console.log(final_number, "Mobile number is not registered");
+//         return res.status(401).json({ err: 'Mobile number not registered', phoneNumber: final_number });
+//     }
+
+//     res.json({ status: 'complete' })
+// })
+
+// client.initialize();
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {

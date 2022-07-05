@@ -75,7 +75,6 @@ app.post('/api/upload', async (req, res) => {
         const uploadResponse = await cloudinary.uploader.upload(fileStr, {
             upload_preset: 'dev_setups',
         });
-        console.log(whatsappOtp, generatedWhatsappOtp)
         if (+otp !== generatedOtp) {
             return res.status(400).json({ err: 'Email OTP Not verified!' })
         }

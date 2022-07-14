@@ -11,6 +11,7 @@ const User = require('./Models/memberModel.js');
 const Review = require('./Models/reviewModel.js');
 const express = require('express');
 const app = express();
+const { instagram } = require('instagram-scraper-api')
 var cors = require('cors');
 
 
@@ -40,6 +41,16 @@ app.get('/api/images', async (req, res) => {
     const members = await User.find({});
     console.log(members)
     res.json(members)
+});
+app.get('/api/ins', async (req, res) => {
+    try {
+        const data = await instagram.user("scalantofficial")
+        res.status(200).json(data)
+    }
+    catch (err) {
+        console.log(err)
+        res.send(err)
+    }
 });
 
 app.post('/api/getotp', async (req, res) => {

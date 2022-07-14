@@ -1,0 +1,10 @@
+# [START app_yaml]
+runtime: nodejs14
+
+env_variables:
+  CLOUDINARY_API_KEY: "256264912587989"
+  CLOUDINARY_API_SECRET: "kye8Ekd9zmhuNFIL4cB8x85Is_Y"
+  CLOUDINARY_NAME: "dishant0406"
+  MONGO_URI: "mongodb+srv://dishant0406:dishant0406@cluster0.zg5dk.mongodb.net/members?retryWrites=true&w=majority"
+  GMAIL_ID: "info.scalant@gmail.com"
+  GMAIL_PASSWORD: "pgeiullvtsylwmyb"

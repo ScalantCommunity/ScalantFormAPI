@@ -127,8 +127,8 @@ app.get('/api/user/:id', async (req, res) => {
 
 app.put('/api/user/:id', async (req, res) => {
     const id = req.params.id;
-    const { name, email, domain, linkedin, github, twitter, instagram, isTeamMember } = req.body
-    const updatedUser = await User.findByIdAndUpdate(id, { name, email, domain, linkedin, github, twitter, instagram, isTeamMember }, {
+    const { name, email, domain, phoneNumber, linkedin, github, twitter, instagram, isTeamMember } = req.body
+    const updatedUser = await User.findByIdAndUpdate(id, { name, email, domain, phoneNumber, linkedin, github, twitter, instagram, isTeamMember }, {
         new: true
     })
     res.json({ updatedUser });
@@ -163,6 +163,51 @@ app.get('/api/review', async (req, res) => {
                     console.log(err)
                 } else {
                     console.log('done')
+                }
+            })
+
+
+        }
+    })
+
+    res.send(users)
+})
+
+app.get('/api/offer', async (req, res) => {
+    const users = await User.find({})
+
+    users.map(async (u) => {
+        if (u.isTeamMember && u.email === 'aggarwalisha1303@gmail.com') {
+
+            console.log(u)
+            const filePath = path.join(__dirname, './templete/offerletter/template/offer.html');
+            const source = fs.readFileSync(filePath, 'utf-8').toString();
+            const template = handlebars.compile(source);
+            const replacements = {
+                linktoform: `https://scalant.in/tnc`,
+            };
+            const htmlToSend = template(replacements);
+
+            let mailOptions = {
+                from: process.env.USER_ID,
+                to: u.email,
+                subject: `Welcome Letter from Scalant`,
+                html: htmlToSend,
+                attachments: [
+                    {
+                        filename: `${u.name.split(' ')[0]}.pdf`,
+                        path: path.join(__dirname, `./templete/offerletter/${u.name.split(' ')[0]}.pdf`),
+                        contentType: 'application/pdf',
+                    },
+                ]
+            }
+
+
+            await transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log(`email sent to- ${u.name} on ${u.email}`)
                 }
             })
 

@@ -3,18 +3,15 @@ const nodemailer = require('nodemailer')
 const handlebars = require("handlebars");
 const path = require('path');
 const fs = require('fs');
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
 require('dotenv').config();
 const connectDB = require('./utils/db.js');
 const User = require('./Models/memberModel.js');
 const Review = require('./Models/reviewModel.js');
 const express = require('express');
 const app = express();
-const { instagram } = require('instagram-scraper-api')
+
+
 var cors = require('cors');
-
-
 
 app.use(express.static('public'));
 app.use(express.json({ limit: '50mb' }));
@@ -22,6 +19,20 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 
 connectDB()
+
+
+//Date Format
+function padTo2Digits(num) {
+    return num.toString().padStart(2, '0');
+}
+
+function formatDate() {
+    return [
+        padTo2Digits(new Date().getDate() + 2),
+        padTo2Digits(new Date().getMonth() + 1),
+        new Date().getFullYear(),
+    ].join('/');
+}
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -32,7 +43,7 @@ let transporter = nodemailer.createTransport({
 })
 
 let generatedOtp;
-let generatedWhatsappOtp;
+
 let verifiedEmail = '';
 
 
@@ -42,16 +53,7 @@ app.get('/api/images', async (req, res) => {
     console.log(members)
     res.json(members)
 });
-app.get('/api/ins', async (req, res) => {
-    try {
-        const data = await instagram.user("scalantofficial")
-        res.status(200).json(data)
-    }
-    catch (err) {
-        console.log(err)
-        res.send(err)
-    }
-});
+
 
 app.post('/api/getotp', async (req, res) => {
     try {
@@ -83,9 +85,6 @@ app.post('/api/upload', async (req, res) => {
     try {
         const fileStr = req.body.data;
         const { name, email, domain, linkedin, github, twitter, instagram, otp, phoneNumber } = req.body
-        const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-            upload_preset: 'dev_setups',
-        });
         if (+otp !== generatedOtp) {
             return res.status(400).json({ err: 'Email OTP Not verified!' })
         }
@@ -94,6 +93,9 @@ app.post('/api/upload', async (req, res) => {
         if (verifiedEmail !== email) {
             return res.status(400).json({ err: 'Cannot change the email after verification!' })
         }
+        const uploadResponse = await cloudinary.uploader.upload(fileStr, {
+            upload_preset: 'dev_setups',
+        });
 
         const member = await User.create({ photo: uploadResponse.url, name, email, phoneNumber, domain, linkedin, github, twitter, instagram })
 
@@ -188,7 +190,7 @@ app.get('/api/offer', async (req, res) => {
     const users = await User.find({})
 
     users.map(async (u) => {
-        if (u.isTeamMember && u.email === 'aggarwalisha1303@gmail.com') {
+        if (u.email === 'faeka6@gmail.com') {
 
             console.log(u)
             const filePath = path.join(__dirname, './templete/offerletter/template/offer.html');
@@ -196,6 +198,7 @@ app.get('/api/offer', async (req, res) => {
             const template = handlebars.compile(source);
             const replacements = {
                 linktoform: `https://scalant.in/tnc`,
+                date: formatDate()
             };
             const htmlToSend = template(replacements);
 

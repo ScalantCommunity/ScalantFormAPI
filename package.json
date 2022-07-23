@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.27.2",
     "cloudinary": "^1.21.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -17,6 +18,8 @@
     "handlebars": "^4.7.7",
     "instagram-scraper-api": "^1.0.1",
     "mongoose": "^6.3.6",
+    "node-cron": "3.0.0",
+    "node-instagram": "^4.3.0",
     "nodemailer": "^6.7.5",
     "qrcode-terminal": "^0.12.0",
     "scraper-instagram": "^1.0.17",

@@ -7,8 +7,12 @@ require('dotenv').config();
 const connectDB = require('./utils/db.js');
 const User = require('./Models/memberModel.js');
 const Review = require('./Models/reviewModel.js');
+const Insta = require('./Models/instaModel.js');
 const express = require('express');
 const app = express();
+const axios = require('axios');
+const cron = require('node-cron');
+const Instagram = require('node-instagram').default;
 
 
 var cors = require('cors');
@@ -25,6 +29,33 @@ app.use(function (req, res, next) {
 })
 
 connectDB()
+
+//instragram
+cron.schedule('0 */3 * * *', async () => {
+    try {
+        console.log('running a task every three hours');
+        const token = await axios.get(process.env.INSTA_API_FETCH)
+        let instaAccessToken = token.data; // get from DB
+        console.log(token.data)
+        let resp = await axios.get(`https://graph.instagram.com/me/media?fields=media_type,permalink,media_url&access_token=${instaAccessToken}`);
+        resp = resp.data;
+        let instaPhotos = resp.data.filter(d => d.media_type === "IMAGE").map(d => d.media_url);
+        // Got insta photos
+        await Insta.deleteMany({});
+        resp.data.forEach(async d => {
+            await Insta.create(d)
+        })
+    } catch (e) {
+        console.log(e.response.data.error);
+    }
+});
+
+
+
+app.get('/api/insta', async (req, res) => {
+    const data = await Insta.find({});
+    res.send(data);
+})
 
 
 //Date Format

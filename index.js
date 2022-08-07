@@ -91,6 +91,17 @@ app.get('/api/images', async (req, res) => {
     res.json(members)
 });
 
+app.get('/bro', (req, res) => {
+    // res.download('./templete/Broucher/ScalantBrochure.pdf'))
+    var data = fs.readFileSync('./templete/Broucher/ScalantBrochure.pdf');
+    res.contentType("application/pdf");
+    res.send(data);
+})
+
+app.get('/brodownload', (req, res) => {
+    res.download('./templete/Broucher/ScalantBrochure.pdf')
+})
+
 
 app.post('/api/getotp', async (req, res) => {
     try {

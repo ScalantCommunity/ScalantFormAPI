@@ -280,6 +280,30 @@ app.get('/api/offer', async (req, res) => {
     res.send(users)
 })
 
+
+app.post('/api/contact', async (req, res) => {
+    const { name, email, message } = req.body
+
+    let mailOptions = {
+        from: process.env.USER_ID,
+        to: 'scalantofficial@gmail.com',
+        subject: `Contact Mail`,
+        text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    }
+
+
+    await transporter.sendMail(mailOptions, function (err, info) {
+        if (err) {
+            console.log(err)
+            res.status(500).json({ err });
+        } else {
+            console.log(`email sent`)
+            res.status(201).json({ success: true, info: 'Mail Sent' })
+        }
+    })
+
+})
+
 app.get('/api/review/:id', async (req, res) => {
     const id = req.params.id;
     try {

@@ -316,7 +316,7 @@ app.get('/api/offer', async (req, res) => {
 app.post('/api/imgupload', async (req, res) => {
     const name = randomstring.generate(7) + '.png';
     console.log(req.headers)
-    const baseurl = `https://${req.headers.host}/files`
+    const baseurl = `https://apiscalant.live/files`
     const { data } = req.body
     let base64Data = data.replace(/^data:image\/png;base64,/, "");
     base64Data += base64Data.replace('+', ' ');

@@ -13,9 +13,13 @@ const app = express();
 const axios = require('axios');
 const cron = require('node-cron');
 const Instagram = require('node-instagram').default;
+var randomstring = require("randomstring");
 
 
 var cors = require('cors');
+
+
+
 
 app.use(express.static('public'));
 app.use(express.json({ limit: '50mb' }));
@@ -29,6 +33,8 @@ app.use(function (req, res, next) {
 })
 
 connectDB()
+
+
 
 //instragram
 cron.schedule('0 */3 * * *', async () => {
@@ -108,6 +114,9 @@ app.post('/api/getotp', async (req, res) => {
         generatedOtp = Math.floor(100000 + Math.random() * 900000);
         const { email } = req.body
         console.log(email, 'hello')
+        if (email === '') {
+            return res.send({ status: false, info: 'Please enter email' })
+        }
         let mailOptions = {
             from: process.env.USER_ID,
             to: email,
@@ -118,7 +127,7 @@ app.post('/api/getotp', async (req, res) => {
             if (err) {
                 return res.json(err)
             } else {
-                res.status(201).json({ info: 'Otp Send' })
+                res.status(201).json({ status: true, info: 'Otp Send' })
             }
         })
         verifiedEmail = email
@@ -129,23 +138,35 @@ app.post('/api/getotp', async (req, res) => {
     }
 })
 
+app.post('/api/verifyotp', async (req, res) => {
+    try {
+        const { otp } = req.body
+        if (otp === '') {
+            return res.send({ status: false, info: 'Please enter otp' })
+        }
+        if (+otp === generatedOtp) {
+            return res.send({ status: true, info: 'Otp Verified' })
+        } else {
+            return res.send({ status: false, info: 'Otp Not Verified' })
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.status(404).json(err)
+    }
+})
+
 app.post('/api/upload', async (req, res) => {
     try {
-        const fileStr = req.body.data;
-        const { name, email, domain, linkedin, github, twitter, instagram, otp, phoneNumber } = req.body
-        if (+otp !== generatedOtp) {
-            return res.status(400).json({ err: 'Email OTP Not verified!' })
+
+        const { name, email, domain, linkedin, github, twitter, instagram, phoneNumber, profileImage } = req.body
+
+        const user = await User.findOne({ email })
+        if (user) {
+            return res.send({ status: false, info: 'User Already Exist' })
         }
 
-
-        if (verifiedEmail !== email) {
-            return res.status(400).json({ err: 'Cannot change the email after verification!' })
-        }
-        const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-            upload_preset: 'dev_setups',
-        });
-
-        const member = await User.create({ photo: uploadResponse.url, name, email, phoneNumber, domain, linkedin, github, twitter, instagram })
+        const member = await User.create({ photo: profileImage, name, email, phoneNumber, domain, linkedin, github, twitter, instagram })
 
         const filePath = path.join(__dirname, './templete/email.html');
         const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -168,7 +189,7 @@ app.post('/api/upload', async (req, res) => {
                 return res.json(err)
             } else {
                 console.log(member)
-                res.status(201).json(member)
+                res.status(201).json({ status: true, member })
             }
         })
 
@@ -193,6 +214,18 @@ app.put('/api/user/:id', async (req, res) => {
         new: true
     })
     res.json({ updatedUser });
+})
+
+app.get('/files/:name', (req, res) => {
+    const fileName = req.params.name;
+    const directoryPath = __dirname + "/images/";
+    res.download(directoryPath + fileName, fileName, (err) => {
+        if (err) {
+            res.status(500).send({
+                message: "Could not download the file. " + err,
+            });
+        }
+    });
 })
 
 app.get('/api/review', async (req, res) => {
@@ -238,7 +271,7 @@ app.get('/api/offer', async (req, res) => {
     const users = await User.find({})
 
     users.map(async (u) => {
-        if (u.email === 'faeka6@gmail.com') {
+        if (u.email === 'abhishektungala1212@gmail.com') {
 
             console.log(u)
             const filePath = path.join(__dirname, './templete/offerletter/template/offer.html');
@@ -278,6 +311,21 @@ app.get('/api/offer', async (req, res) => {
     })
 
     res.send(users)
+})
+
+app.post('/api/imgupload', async (req, res) => {
+    const name = randomstring.generate(7) + '.png';
+    console.log(req.headers)
+    const baseurl = `https://${req.headers.host}/files`
+    const { data } = req.body
+    let base64Data = data.replace(/^data:image\/png;base64,/, "");
+    base64Data += base64Data.replace('+', ' ');
+    binaryData = new Buffer(base64Data, 'base64').toString('binary');
+
+    await fs.writeFile(`./images/${name}`, binaryData, "binary", function (err) {
+        console.log(err); // writes out file without error, but it's not a valid image
+    });
+    res.send(baseurl + `/${name}`);
 })
 
 

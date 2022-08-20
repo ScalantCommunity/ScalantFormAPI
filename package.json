@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "nodemon index.js"
   },
   "author": "",
@@ -22,6 +22,7 @@
     "node-instagram": "^4.3.0",
     "nodemailer": "^6.7.5",
     "qrcode-terminal": "^0.12.0",
+    "randomstring": "^1.2.2",
     "scraper-instagram": "^1.0.17",
     "whatsapp-web.js": "^1.17.0"
   }

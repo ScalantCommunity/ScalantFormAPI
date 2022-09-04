@@ -348,7 +348,7 @@ const upload = multer({
 app.post('/api/imgupload', upload.single('image'), (req, res) => {
     const url = req.protocol + '://' + req.get("host");
 
-    res.send(`${url}/${req.file.path}`)
+    res.send(`https://apiscalant.live//${req.file.path}`)
 })
 
 // app.post('/api/imgupload', async (req, res) => {

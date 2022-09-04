@@ -1,6 +1,7 @@
 const { cloudinary } = require('./utils/cloudinary');
 const nodemailer = require('nodemailer')
 const handlebars = require("handlebars");
+const multer = require("multer");
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -216,6 +217,8 @@ app.put('/api/user/:id', async (req, res) => {
     res.json({ updatedUser });
 })
 
+app.use('/images', express.static(path.join(__dirname, './images')))
+
 app.get('/files/:name', (req, res) => {
     const fileName = req.params.name;
     const directoryPath = __dirname + "/images/";
@@ -271,7 +274,7 @@ app.get('/api/offer', async (req, res) => {
     const users = await User.find({})
 
     users.map(async (u) => {
-        if (u.email === 'abhishektungala1212@gmail.com') {
+        if (u.email === 'officialjames98@gmail.com') {
 
             console.log(u)
             const filePath = path.join(__dirname, './templete/offerletter/template/offer.html');
@@ -313,20 +316,55 @@ app.get('/api/offer', async (req, res) => {
     res.send(users)
 })
 
-app.post('/api/imgupload', async (req, res) => {
-    const name = randomstring.generate(7) + '.png';
-    console.log(req.headers)
-    const baseurl = `https://apiscalant.live/files`
-    const { data } = req.body
-    let base64Data = data.replace(/^data:image\/png;base64,/, "");
-    base64Data += base64Data.replace('+', ' ');
-    binaryData = new Buffer(base64Data, 'base64').toString('binary');
 
-    await fs.writeFile(`./images/${name}`, binaryData, "binary", function (err) {
-        console.log(err); // writes out file without error, but it's not a valid image
-    });
-    res.send(baseurl + `/${name}`);
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "./images/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const checkFileType = (file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb("Error: Images Only!");
+    }
+}
+
+const upload = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        checkFileType(file, cb);
+    }
+});
+
+app.post('/api/imgupload', upload.single('image'), (req, res) => {
+    const url = req.protocol + '://' + req.get("host");
+
+    res.send(`${url}/${req.file.path}`)
 })
+
+// app.post('/api/imgupload', async (req, res) => {
+//     console.log(req.headers)
+//     const baseurl = `https://apiscalant.live/files`
+//     const { data, format } = req.body
+//     const name = randomstring.generate(7) + '.' + format;
+//     let base64Data = data.replace(/^data:image\/png;base64,/, "");
+//     base64Data += base64Data.replace('+', ' ');
+//     binaryData = new Buffer(base64Data, 'base64').toString('binary');
+
+//     await fs.writeFile(`./images/${name}`, binaryData, "binary", function (err) {
+//         console.log(err); // writes out file without error, but it's not a valid image
+//     });
+//     res.send(baseurl + `/${name}`);
+// })
 
 
 app.post('/api/contact', async (req, res) => {
